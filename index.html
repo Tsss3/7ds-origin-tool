@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>七つの大罪オリジン 魔法付与選択ツール</title>
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#2563eb">
+
+<style>
+*{
+box-sizing:border-box;
+}
+
+body{
+font-family:sans-serif;
+background:#f4f6fb;
+max-width:720px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:white;
+padding:16px;
+border-radius:12px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+h1{
+text-align:center;
+font-size:26px;
+}
+
+h2{
+margin-top:0;
+}
+
+label{
+display:block;
+margin-top:12px;
+font-weight:bold;
+}
+
+input{
+width:100%;
+padding:12px;
+font-size:16px;
+margin-top:4px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button{
+width:100%;
+padding:14px;
+font-size:16px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+.primary{
+background:#2563eb;
+color:white;
+}
+
+.secondary{
+background:#64748b;
+color:white;
+}
+
+.success{
+background:#16a34a;
+color:white;
+}
+
+.hidden{
+display:none;
+}
+
+.result{
+font-size:18px;
+line-height:1.8;
+}
+
+.win{
+color:#16a34a;
+font-weight:bold;
+}
+
+.draw{
+color:#f59e0b;
+font-weight:bold;
+}
+
+.info{
+font-size:14px;
+color:#666;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>七つの大罪オリジン<br>魔法付与選択ツール</h1>
+
+<div id="step1" class="card">
+
+<h2>STEP1 共通ステータス</h2>
+
+<p>基礎攻撃力：5128（固定）</p>
+
+<label>装備攻撃力</label> <input id="equipAtk" type="number">
+
+<label>属性攻撃力</label> <input id="elementAtk" type="number">
+
+<label>全属性攻撃力</label> <input id="allElementAtk" type="number">
+
+<label>攻撃力増加 (%)</label> <input id="atkRate" type="number">
+
+<button class="primary" onclick="nextStep()">
+次へ
+</button>
+
+</div>
+
+<div id="step2" class="hidden">
+
+<div class="card">
+
+<h2>装備A</h2>
+
+<label>属性攻撃力増加 (%)</label> <input id="a_attrRate" type="number">
+
+<label>属性ダメージ増加 (%)</label> <input id="a_attrDmg" type="number">
+
+<label>通常スキルダメージ増加 (%)</label> <input id="a_skillDmg" type="number">
+
+<label>クリティカルダメージ (%)</label> <input id="a_crit" type="number">
+
+</div>
+
+<div class="card">
+
+<h2>装備B</h2>
+
+<label>属性攻撃力増加 (%)</label> <input id="b_attrRate" type="number">
+
+<label>属性ダメージ増加 (%)</label> <input id="b_attrDmg" type="number">
+
+<label>通常スキルダメージ増加 (%)</label> <input id="b_skillDmg" type="number">
+
+<label>クリティカルダメージ (%)</label> <input id="b_crit" type="number">
+
+</div>
+
+<div class="card">
+
+<button class="primary" onclick="compare()">
+比較する
+</button>
+
+<button class="secondary" onclick="backStep()">
+戻る
+</button>
+
+<button class="success" onclick="shareResult()">
+結果を共有
+</button>
+
+</div>
+
+<div id="resultCard" class="card hidden">
+
+<h2>比較結果</h2>
+
+<div id="result" class="result"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const BASE_ATK = 5128;
+
+function saveData(){
+
+document.querySelectorAll("input").forEach(i=>{
+
+localStorage.setItem(i.id,i.value);
+
+});
+
+}
+
+function loadData(){
+
+document.querySelectorAll("input").forEach(i=>{
+
+i.value =
+localStorage.getItem(i.id) || "";
+
+i.addEventListener("input",saveData);
+
+});
+
+}
+
+function nextStep(){
+
+if(
+equipAtk.value==="" ||
+elementAtk.value==="" ||
+allElementAtk.value==="" ||
+atkRate.value===""){
+alert("STEP1をすべて入力してください");
+return;
+}
+
+saveData();
+
+step1.classList.add("hidden");
+step2.classList.remove("hidden");
+
+}
+
+function backStep(){
+
+step2.classList.add("hidden");
+step1.classList.remove("hidden");
+
+}
+
+function calc(prefix){
+
+const equip =
+Number(equipAtk.value);
+
+const element =
+Number(elementAtk.value);
+
+const allElement =
+Number(allElementAtk.value);
+
+const atkRateValue =
+Number(atkRate.value)/100;
+
+const attrRate =
+Number(
+document.getElementById(prefix+"_attrRate").value
+)/100;
+
+const attrDmg =
+Number(
+document.getElementById(prefix+"_attrDmg").value
+)/100;
+
+const skillDmg =
+Number(
+document.getElementById(prefix+"_skillDmg").value
+)/100;
+
+const crit =
+Number(
+document.getElementById(prefix+"_crit").value
+)/100;
+
+const attack =
+(BASE_ATK + equip)
+*
+(1 + atkRateValue);
+
+const attributeAttack =
+(element + allElement)
+*
+(1 + attrRate);
+
+const totalAttack =
+attack + attributeAttack;
+
+const damageMultiplier =
+1 + attrDmg + skillDmg;
+
+const critMultiplier =
+1 + crit;
+
+const score =
+totalAttack
+*
+damageMultiplier
+*
+critMultiplier;
+
+return {
+
+attack,
+attributeAttack,
+totalAttack,
+damageMultiplier,
+critMultiplier,
+score
+
+};
+
+}
+
+function compare(){
+
+saveData();
+
+const a = calc("a");
+const b = calc("b");
+
+let diff =
+((b.score-a.score)/a.score*100);
+
+let winnerText = "";
+
+if(Math.abs(diff) < 0.5){
+
+winnerText =
+'<span class="draw">ほぼ同等</span>';
+
+}else{
+
+winnerText =
+b.score > a.score
+?
+'<span class="win">おすすめ：装備B</span>'
+:
+'<span class="win">おすすめ：装備A</span>';
+
+}
+
+resultCard.classList.remove("hidden");
+
+result.innerHTML =
+
+`
+<h3>装備A</h3>
+
+総合攻撃力：
+${Math.round(a.totalAttack).toLocaleString()}<br>
+
+ダメージ倍率：
+${a.damageMultiplier.toFixed(3)}<br>
+
+クリ倍率：
+${a.critMultiplier.toFixed(3)}<br>
+
+火力指数：
+<b>${Math.round(a.score).toLocaleString()}</b>
+
+<hr>
+
+<h3>装備B</h3>
+
+総合攻撃力：
+${Math.round(b.totalAttack).toLocaleString()}<br>
+
+ダメージ倍率：
+${b.damageMultiplier.toFixed(3)}<br>
+
+クリ倍率：
+${b.critMultiplier.toFixed(3)}<br>
+
+火力指数：
+<b>${Math.round(b.score).toLocaleString()}</b>
+
+<hr>
+
+差分：
+<b>${diff.toFixed(2)}%</b>
+
+<br><br>
+
+${winnerText}
+`;
+
+}
+
+async function shareResult(){
+
+const text =
+result.innerText;
+
+if(!text){
+
+alert("先に比較してください");
+
+return;
+
+}
+
+if(navigator.share){
+
+try{
+
+await navigator.share({
+
+title:
+"七つの大罪オリジン 魔法付与選択ツール",
+
+text:text
+
+});
+
+}catch(e){}
+
+}else{
+
+navigator.clipboard.writeText(text);
+
+alert("結果をコピーしました");
+
+}
+
+}
+
+loadData();
+
+if(localStorage.getItem("equipAtk")){
+
+step1.classList.add("hidden");
+step2.classList.remove("hidden");
+
+}
+
+if ('serviceWorker' in navigator) {
+
+window.addEventListener('load', () => {
+
+navigator.serviceWorker.register('sw.js');
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
