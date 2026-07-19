@@ -1,181 +1,223 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>七つの大罪オリジン 魔法付与選択ツール</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
-<style>
-*{box-sizing:border-box}
-body{font-family:sans-serif;background:#f4f6fb;max-width:720px;margin:auto;padding:15px}
-.card{background:white;padding:16px;border-radius:12px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-h1{text-align:center;font-size:26px}
-label{display:block;margin-top:12px;font-weight:bold}
-input{width:100%;padding:12px;font-size:16px;margin-top:4px;border:1px solid #ccc;border-radius:8px}
-button{width:100%;padding:14px;font-size:16px;margin-top:10px;border:none;border-radius:10px;cursor:pointer}
-.primary{background:#2563eb;color:white}
-.secondary{background:#64748b;color:white}
-.success{background:#16a34a;color:white}
-.hidden{display:none}
-.result{font-size:18px;line-height:1.8}
-.win{color:#16a34a;font-weight:bold}
-.draw{color:#f59e0b;font-weight:bold}
-</style>
-</head>
-<body>
-<h1>七つの大罪オリジン<br>魔法付与選択ツール</h1>
-
 <div id="step1" class="card">
-<h2>STEP1 共通ステータス</h2>
-<p>基礎攻撃力：5128（固定）</p>
 
-<label>装備攻撃力</label><input id="equipAtk" type="number">
-<label>属性攻撃力</label><input id="elementAtk" type="number">
-<label>全属性攻撃力</label><input id="allElementAtk" type="number">
-<label>攻撃力増加 (%)</label><input id="atkRate" type="number">
-<label>魔法付与を除いた通常スキルダメージ (%)</label><input id="baseSkillDmg" type="number">
-<label>魔法付与を除いたクリティカルダメージ (%)</label><input id="baseCritDmg" type="number">
+<h2>STEP1 設定</h2>
 
-<button class="primary" onclick="nextStep()">次へ</button>
+<label>基礎攻撃力</label>
+<input id="baseAtk" type="number" placeholder="例：5128">
+
+<label>装備攻撃力</label>
+<input id="equipAtk" type="number">
+
+<label>属性攻撃力</label>
+<input id="elementAtk" type="number">
+
+<label>全属性攻撃力</label>
+<input id="allElementAtk" type="number">
+
+<label>攻撃力増加 (%)</label>
+<input id="atkRate" type="number">
+
+<label>魔法付与を除いたスキルor必殺ダメージ (%)</label>
+<input id="baseSkillDmg" type="number">
+
+<label>魔法付与を除いたクリティカルダメージ (%)</label>
+<input id="baseCritDmg" type="number">
+
+<button class="primary" onclick="nextStep()">
+STEP2へ
+</button>
+
 </div>
 
 <div id="step2" class="hidden">
-<div class="card">
-<h2>現在</h2>
-<label>属性攻撃力増加 (%)</label><input id="a_attrRate" type="number">
-<label>属性ダメージ増加 (%)</label><input id="a_attrDmg" type="number">
-<label>通常スキルダメージ増加 (%)</label><input id="a_skillDmg" type="number">
-<label>クリティカルダメージ (%)</label><input id="a_crit" type="number">
-</div>
 
 <div class="card">
-<h2>変更後</h2>
-<label>属性攻撃力増加 (%)</label><input id="b_attrRate" type="number">
-<label>属性ダメージ増加 (%)</label><input id="b_attrDmg" type="number">
-<label>通常スキルダメージ増加 (%)</label><input id="b_skillDmg" type="number">
-<label>クリティカルダメージ (%)</label><input id="b_crit" type="number">
-</div>
 
-<div class="card">
-<button class="primary" onclick="compare()">比較する</button>
-<button class="secondary" onclick="backStep()">戻る</button>
+<h2>STEP2 比較</h2>
+
+<h3>装備A</h3>
+
+<label>属性攻撃力増加 (%)</label>
+<input id="a_attrRate" type="number">
+
+<label>属性ダメージ増加 (%)</label>
+<input id="a_attrDmg" type="number">
+
+<label>スキルor必殺ダメージ増加 (%)</label>
+<input id="a_skillDmg" type="number">
+
+<label>クリティカルダメージ (%)</label>
+<input id="a_crit" type="number">
+
+<hr>
+
+<h3>装備B</h3>
+
+<label>属性攻撃力増加 (%)</label>
+<input id="b_attrRate" type="number">
+
+<label>属性ダメージ増加 (%)</label>
+<input id="b_attrDmg" type="number">
+
+<label>スキルor必殺ダメージ増加 (%)</label>
+<input id="b_skillDmg" type="number">
+
+<label>クリティカルダメージ (%)</label>
+<input id="b_crit" type="number">
+
+<button class="primary" onclick="compare()">
+比較する
+</button>
+
+<button class="secondary" onclick="backStep()">
+STEP1へ戻る
+</button>
+
 </div>
 
 <div id="resultCard" class="card hidden">
-<h2>比較結果</h2>
-<div id="result" class="result"></div>
+
+<h2>STEP3 結果</h2>
+
+<div id="result"></div>
+
 </div>
+
 </div>
-
-<script>
-const BASE_ATK=5128;
-
-function saveData(){
- document.querySelectorAll("input").forEach(i=>localStorage.setItem(i.id,i.value));
-}
-
-function loadData(){
- document.querySelectorAll("input").forEach(i=>{
-   i.value=localStorage.getItem(i.id)||"";
-   i.addEventListener("input",saveData);
- });
-}
 
 function nextStep(){
- if(equipAtk.value===""||elementAtk.value===""||allElementAtk.value===""||atkRate.value===""||baseSkillDmg.value===""||baseCritDmg.value===""){
-   alert("STEP1をすべて入力してください");
-   return;
- }
- saveData();
- step1.classList.add("hidden");
- step2.classList.remove("hidden");
+
+if(
+baseAtk.value===""||
+equipAtk.value===""||
+elementAtk.value===""||
+allElementAtk.value===""||
+atkRate.value===""||
+baseSkillDmg.value===""||
+baseCritDmg.value===""){
+alert("STEP1をすべて入力してください");
+return;
 }
 
-function backStep(){
- step2.classList.add("hidden");
- step1.classList.remove("hidden");
-}
+saveData();
 
-function calc(prefix){
- const equip=Number(equipAtk.value);
- const element=Number(elementAtk.value);
- const allElement=Number(allElementAtk.value);
- const atkRateValue=Number(atkRate.value)/100;
- const baseSkill=Number(baseSkillDmg.value)/100;
- const baseCrit=Number(baseCritDmg.value)/100;
+step1.classList.add("hidden");
+step2.classList.remove("hidden");
 
- const attrRate=Number(document.getElementById(prefix+"_attrRate").value);
- const attrDmg=Number(document.getElementById(prefix+"_attrDmg").value);
- const skillDmg=Number(document.getElementById(prefix+"_skillDmg").value);
- const crit=Number(document.getElementById(prefix+"_crit").value);
-
- const attack=(BASE_ATK+equip)*(1+atkRateValue);
- const attributeAttack=(element+allElement)*(1+attrRate/100);
- const totalAttack=attack+attributeAttack;
-
- const damageMultiplier=1+(attrDmg/100)+baseSkill+(skillDmg/100);
- const critMultiplier=1+baseCrit+(crit/100);
- const score=totalAttack*damageMultiplier*critMultiplier;
-
- const attrAtkScore=Math.max(0,Math.min(100,((attrRate-26.26)/17.50)*100));
- const attrDmgScore=Math.max(0,Math.min(100,((attrDmg-11.35)/7.63)*100));
- const skillScore=Math.max(0,Math.min(100,((skillDmg-13.01)/8.68)*100));
- const critScore=Math.max(0,Math.min(100,((crit-10.69)/7.14)*100));
-
- const totalEnchantScore=attrAtkScore+attrDmgScore+skillScore+critScore;
- const avgEnchantScore=totalEnchantScore/4;
-
- let rank="D";
- if(avgEnchantScore>=95) rank="SSS";
- else if(avgEnchantScore>=90) rank="SS";
- else if(avgEnchantScore>=80) rank="S";
- else if(avgEnchantScore>=70) rank="A";
- else if(avgEnchantScore>=60) rank="B";
- else if(avgEnchantScore>=50) rank="C";
-
- return {score,totalEnchantScore,avgEnchantScore,rank,attrAtkScore,attrDmgScore,skillScore,critScore};
 }
 
 function compare(){
- const a=calc("a");
- const b=calc("b");
- const diff=((b.score-a.score)/a.score*100);
 
- let winner=Math.abs(diff)<0.5 ? "ほぼ同等" : (b.score>a.score ? "変更後":"現在");
- let enchantWinner=a.totalEnchantScore>b.totalEnchantScore?"現在":"変更後";
+saveData();
 
- resultCard.classList.remove("hidden");
- result.innerHTML=`
- <h3>火力指数比較</h3>
- 現在：<b>${Math.round(a.score).toLocaleString()}</b><br>
- 変更後：<b>${Math.round(b.score).toLocaleString()}</b><br>
- <hr>
- 差分：<b>${diff.toFixed(2)}%</b><br>
- 火力勝者：<b>${winner}</b>
- <hr>
- <h3>現在 厳選評価</h3>
- 属性攻撃力増加 ${a.attrAtkScore.toFixed(1)}点<br>
- 属性ダメージ増加 ${a.attrDmgScore.toFixed(1)}点<br>
- 通常スキルダメージ ${a.skillScore.toFixed(1)}点<br>
- クリティカルダメージ ${a.critScore.toFixed(1)}点<br>
- 合計 ${a.totalEnchantScore.toFixed(1)}/400<br>
- 平均 ${a.avgEnchantScore.toFixed(1)}<br>
- ランク ${a.rank}
- <hr>
- <h3>変更後 厳選評価</h3>
- 属性攻撃力増加 ${b.attrAtkScore.toFixed(1)}点<br>
- 属性ダメージ増加 ${b.attrDmgScore.toFixed(1)}点<br>
- 通常スキルダメージ ${b.skillScore.toFixed(1)}点<br>
- クリティカルダメージ ${b.critScore.toFixed(1)}点<br>
- 合計 ${b.totalEnchantScore.toFixed(1)}/400<br>
- 平均 ${b.avgEnchantScore.toFixed(1)}<br>
- ランク ${b.rank}
- <hr>
- <b>おすすめ：${enchantWinner}</b>`;
+const a =
+calc("a");
+
+const b =
+calc("b");
+
+const diff =
+((b.score-a.score)
+/a.score)
+*100;
+
+let winner="";
+
+if(Math.abs(diff)<0.5){
+
+winner="ほぼ同等";
+
+}else{
+
+winner=
+b.score>a.score
+?
+"装備B"
+:
+"装備A";
+
 }
 
-loadData();
-</script>
-</body>
-</html>
+resultCard.classList.remove("hidden");
+
+result.innerHTML=
+
+`
+
+<h3>火力指数比較</h3>
+
+<h4>装備A</h4>
+
+総合攻撃力：
+${Math.round(a.totalAttack).toLocaleString()}
+
+<br>
+
+ダメージ倍率：
+${a.damageMultiplier.toFixed(3)}
+
+<br>
+
+クリ倍率：
+${a.critMultiplier.toFixed(3)}
+
+<br>
+
+火力指数：
+
+<b>
+
+${Math.round(a.score).toLocaleString()}
+
+</b>
+
+<hr>
+
+<h4>装備B</h4>
+
+総合攻撃力：
+${Math.round(b.totalAttack).toLocaleString()}
+
+<br>
+
+ダメージ倍率：
+${b.damageMultiplier.toFixed(3)}
+
+<br>
+
+クリ倍率：
+${b.critMultiplier.toFixed(3)}
+
+<br>
+
+火力指数：
+
+<b>
+
+${Math.round(b.score).toLocaleString()}
+
+</b>
+
+<hr>
+
+差分
+
+<b>
+
+${diff.toFixed(2)}%
+
+</b>
+
+<br><br>
+
+おすすめ
+
+<b>
+
+${winner}
+
+</b>
+
+`;
+
+}
