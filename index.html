@@ -97,7 +97,7 @@ function backStep(){
 }
 
 function calc(prefix){
- const baseAtk=Number(baseAtk.value);
+ const baseAttack = Number(document.getElementById("baseAtk").value);
  const equip=Number(equipAtk.value);
  const element=Number(elementAtk.value);
  const allElement=Number(allElementAtk.value);
@@ -110,7 +110,7 @@ function calc(prefix){
  const skillDmg=Number(document.getElementById(prefix+"_skillDmg").value);
  const crit=Number(document.getElementById(prefix+"_crit").value);
 
- const attack=(baseAtk+equip)*(1+atkRateValue);
+ const attack=(baseAttack+equip)*(1+atkRateValue);
  const attributeAttack=(element+allElement)*(1+attrRate/100);
  const totalAttack=attack+attributeAttack;
 
