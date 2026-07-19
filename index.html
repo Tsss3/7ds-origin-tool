@@ -118,24 +118,12 @@ function calc(prefix){
  const critMultiplier=1+baseCrit+(crit/100);
  const score=totalAttack*damageMultiplier*critMultiplier;
 
- const attrAtkScore=Math.max(0,Math.min(100,((attrRate-26.26)/17.50)*100));
- const attrDmgScore=Math.max(0,Math.min(100,((attrDmg-11.35)/7.63)*100));
- const skillScore=Math.max(0,Math.min(100,((skillDmg-13.01)/8.68)*100));
- const critScore=Math.max(0,Math.min(100,((crit-10.69)/7.14)*100));
-
- const totalEnchantScore=attrAtkScore+attrDmgScore+skillScore+critScore;
- const avgEnchantScore=totalEnchantScore/4;
-
- let rank="D";
- if(avgEnchantScore>=95) rank="SSS";
- else if(avgEnchantScore>=90) rank="SS";
- else if(avgEnchantScore>=80) rank="S";
- else if(avgEnchantScore>=70) rank="A";
- else if(avgEnchantScore>=60) rank="B";
- else if(avgEnchantScore>=50) rank="C";
-
- return {score,totalEnchantScore,avgEnchantScore,rank,attrAtkScore,attrDmgScore,skillScore,critScore};
-}
+ return {
+  score,
+  totalAttack,
+  damageMultiplier,
+  critMultiplier
+};
 
 function compare(){
  const a=calc("a");
@@ -143,7 +131,6 @@ function compare(){
  const diff=((b.score-a.score)/a.score*100);
 
  let winner=Math.abs(diff)<0.5 ? "ほぼ同等" : (b.score>a.score ? "変更後":"現在");
- let enchantWinner=a.totalEnchantScore>b.totalEnchantScore?"現在":"変更後";
 
  resultCard.classList.remove("hidden");
  result.innerHTML=`
@@ -154,25 +141,6 @@ function compare(){
  差分：<b>${diff.toFixed(2)}%</b><br>
  火力勝者：<b>${winner}</b>
  <hr>
- <h3>現在 厳選評価</h3>
- 属性攻撃力増加 ${a.attrAtkScore.toFixed(1)}点<br>
- 属性ダメージ増加 ${a.attrDmgScore.toFixed(1)}点<br>
- 通常スキルダメージ ${a.skillScore.toFixed(1)}点<br>
- クリティカルダメージ ${a.critScore.toFixed(1)}点<br>
- 合計 ${a.totalEnchantScore.toFixed(1)}/400<br>
- 平均 ${a.avgEnchantScore.toFixed(1)}<br>
- ランク ${a.rank}
- <hr>
- <h3>変更後 厳選評価</h3>
- 属性攻撃力増加 ${b.attrAtkScore.toFixed(1)}点<br>
- 属性ダメージ増加 ${b.attrDmgScore.toFixed(1)}点<br>
- 通常スキルダメージ ${b.skillScore.toFixed(1)}点<br>
- クリティカルダメージ ${b.critScore.toFixed(1)}点<br>
- 合計 ${b.totalEnchantScore.toFixed(1)}/400<br>
- 平均 ${b.avgEnchantScore.toFixed(1)}<br>
- ランク ${b.rank}
- <hr>
- <b>おすすめ：${enchantWinner}</b>`;
 }
 
 loadData();
